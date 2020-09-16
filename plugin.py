@@ -8,24 +8,27 @@
         <h2>RfmUsb Energenie Ook Devices Plugin</h2>
         <br/>
         The RfmUsb Energenie Ook Devices Plugin allows controlling various Energenie OOK devices.
-        
-        Switches MIHO008, MIHO024, MIHO025, MIHO026, MIHO071, MIHO072, MIHO073
-        
-        Sockets MIHO07, MIHO021, MIHO022, MIHO023
         <h3>Features</h3>
         <ul style="list-style-type:square">
-            <li>Feature one...</li>
-            <li>Feature two...</li>
+            <li>Supports MIHO07, MIHO021, MIHO022, MIHO023 double sockets</li>
+            <li>Supports MIHO008, MIHO024, MIHO025, MIHO026, MIHO071, MIHO072, MIHO073 light switches</li>
+            <li>Can pair switch when switch or socket placed in pairing mode</li>
         </ul>
         <h3>Devices</h3>
         <ul style="list-style-type:square">
-            <li>Device Type - What it does...</li>
+            <li>Switch - On off control</li>
         </ul>
         <h3>Configuration</h3>
         Configuration options...
     </description>
     <params>
         <param field="SerialPort" label="Serial Port" width="150px" required="true" default="/dev/tty0"/>
+        <param field="Mode1" label="Home Address A" width="150px" required="true" default="6C6C6"/>
+        <param field="Mode2" label="Home Address B" width="150px" required="false"/>
+        <param field="Mode3" label="Home Address C" width="150px" required="false"/>
+        <param field="Mode4" label="Home Address D" width="150px" required="false"/>
+        <param field="Mode5" label="Home Address E" width="150px" required="false"/>
+        <param field="Mode6" label="Home Address F" width="150px" required="false"/>
     </params>
 </plugin>
 """
