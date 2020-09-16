@@ -22,19 +22,31 @@
         Configuration options...
     </description>
     <params>
-        <param field="SerialPort" label="Serial Port" width="150px" required="true" default="/dev/tty0"/>
-        <param field="Mode1" label="Home Address A" width="150px" required="true" default="6C6C6"/>
-        <param field="Mode2" label="Home Address B" width="150px" required="false"/>
+        <param field="SerialPort" label="Serial Port" width="150px" required="true" default="/dev/serial1"/>
+        <param field="Mode1" label="Home Addresss" width="300px" required="true" default="6C6C6"/>
+        <param field="Mode2" label="Tx Count" width="100px">
+            <options>
+                <option label="Five" value="5"/>
+                <option label="Eight" value="8"/>
+                <option label="Thirteen" value="13"/>
+            </options>
+        </param>
         <param field="Mode3" label="Home Address C" width="150px" required="false"/>
         <param field="Mode4" label="Home Address D" width="150px" required="false"/>
         <param field="Mode5" label="Home Address E" width="150px" required="false"/>
-        <param field="Mode6" label="Home Address F" width="150px" required="false"/>
+        <param field="Mode6" label="Debug" width="75px">
+            <options>
+                <option label="True" value="Debug"/>
+                <option label="False" value="Normal"  default="true" />
+            </options>
+        </param>
     </params>
 </plugin>
 """
 import Domoticz
 
 class BasePlugin:
+    SerialConn = None
     enabled = False
     def __init__(self):
         #self.var = 123
@@ -42,12 +54,22 @@ class BasePlugin:
 
     def onStart(self):
         Domoticz.Log("onStart called")
+        SerialConn = Domoticz.Connection(Name="Serial Connection", Transport="Serial", Protocol="None", Address=Parameters["SerialPort"], Baud=115200)
+        SerialConn.Connect()
 
     def onStop(self):
         Domoticz.Log("onStop called")
 
     def onConnect(self, Connection, Status, Description):
-        Domoticz.Log("onConnect called")
+        global SerialConn
+        if (Status == 0):
+            Domoticz.Log("Connected successfully to: "+Parameters["SerialPort"])
+            
+            SerialConn = Connection
+        else:
+            Domoticz.Log("Failed to connect ("+str(Status)+") to: "+Parameters["SerialPort"])
+            Domoticz.Debug("Failed to connect ("+str(Status)+") to: "+Parameters["SerialPort"]+" with error: "+Description)
+        return True
 
     def onMessage(self, Connection, Data):
         Domoticz.Log("onMessage called")
@@ -59,7 +81,8 @@ class BasePlugin:
         Domoticz.Log("Notification: " + Name + "," + Subject + "," + Text + "," + Status + "," + str(Priority) + "," + Sound + "," + ImageFile)
 
     def onDisconnect(self, Connection):
-        Domoticz.Log("onDisconnect called")
+        Domoticz.Log("Connection '"+Connection.Name+"' disconnected.")
+        return
 
     def onHeartbeat(self):
         Domoticz.Log("onHeartbeat called")
