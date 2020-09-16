@@ -50,6 +50,7 @@ class BasePlugin:
     enabled = False
 
     commandSent = False
+    serialBuffer = ""
 
     def __init__(self):
         #self.var = 123
@@ -74,8 +75,11 @@ class BasePlugin:
         return True
 
     def onMessage(self, Connection, Data):
-        strData = Data.decode("ascii")
-        Domoticz.Log("Recived data from RfmUsb ["+str(strData)+"]")
+        global serialBuffer
+    
+        serialBuffer += Data.decode("ascii")
+
+        Domoticz.Log("Recived data from RfmUsb ["+str(serialBuffer)+"]")
 
     def onCommand(self, Unit, Command, Level, Hue):
         Domoticz.Log("onCommand called for Unit " + str(Unit) + ": Parameter '" + str(Command) + "', Level: " + str(Level))
