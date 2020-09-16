@@ -74,8 +74,7 @@ class BasePlugin:
         return True
 
     def onMessage(self, Connection, Data):
-        strData = Data.decode("utf-8", "ignore")
-        Domoticz.Log("Recived data from RfmUsb ["+str(strData)+"]")
+        Domoticz.Log("Recived data from RfmUsb ["+str(Data)+"]")
 
     def onCommand(self, Unit, Command, Level, Hue):
         Domoticz.Log("onCommand called for Unit " + str(Unit) + ": Parameter '" + str(Command) + "', Level: " + str(Level))
