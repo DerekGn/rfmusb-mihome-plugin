@@ -48,6 +48,9 @@ import Domoticz
 class BasePlugin:
     SerialConn = None
     enabled = False
+
+    commandSent = False
+
     def __init__(self):
         #self.var = 123
         return
@@ -64,7 +67,6 @@ class BasePlugin:
         global SerialConn
         if (Status == 0):
             Domoticz.Log("Connected successfully to: "+Parameters["SerialPort"])
-            
             SerialConn = Connection
         else:
             Domoticz.Log("Failed to connect ("+str(Status)+") to: "+Parameters["SerialPort"])
@@ -72,7 +74,7 @@ class BasePlugin:
         return True
 
     def onMessage(self, Connection, Data):
-        Domoticz.Log("onMessage called")
+        Domoticz.Log("Recived data from RfmUsb ["+str(Data)+"]")
 
     def onCommand(self, Unit, Command, Level, Hue):
         Domoticz.Log("onCommand called for Unit " + str(Unit) + ": Parameter '" + str(Command) + "', Level: " + str(Level))
