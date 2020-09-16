@@ -7,7 +7,11 @@
     <description>
         <h2>RfmUsb Energenie Ook Devices Plugin</h2>
         <br/>
-        Overview...
+        The RfmUsb Energenie Ook Devices Plugin allows controlling various Energenie OOK devices.
+        <hr>
+        Switches MIHO008, MIHO024, MIHO025, MIHO026, MIHO071, MIHO072, MIHO073
+        <hr>
+        Sockets MIHO07, MIHO021, MIHO022, MIHO023
         <h3>Features</h3>
         <ul style="list-style-type:square">
             <li>Feature one...</li>
