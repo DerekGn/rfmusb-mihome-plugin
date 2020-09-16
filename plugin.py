@@ -56,7 +56,7 @@ class BasePlugin:
 
     def onStart(self):
         Domoticz.Log("onStart called")
-        SerialConn = Domoticz.Connection(Name="Serial Connection", Transport="Serial", Protocol="None", Address=Parameters["SerialPort"], Baud=115200)
+        SerialConn = Domoticz.Connection(Name="Serial Connection", Transport="Serial", Protocol="Line", Address=Parameters["SerialPort"], Baud=115200)
         SerialConn.Connect()
 
     def onStop(self):
