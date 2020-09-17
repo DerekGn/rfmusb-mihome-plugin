@@ -144,15 +144,15 @@ def AddDevices(BaseIndex):
     prefix = 'A'
 
     for x in range(0, BaseIndex * 5):
-        prefix = prefix + x
+
         if((x % 5) == 0):
             if(not DeviceExists(x+1)):
-                Domoticz.Log("Creating Device [Home "+str(prefix)+" Switch ALL]")
-                Domoticz.Device(Name="Home "+prefix+" Switch ALL", Unit=x+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
+                Domoticz.Log("Creating Device [Home "+chr(ord(prefix)+x)+" Switch ALL]")
+                Domoticz.Device(Name="Home "+chr(ord(prefix)+x)+" Switch ALL", Unit=x+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
         else:
             if(not DeviceExists(x+1)):    
-                Domoticz.Log("Creating Device [Home "+str(prefix)+" Switch"+str(x)+"]")
-                Domoticz.Device(Name="Home "+str(prefix)+" Switch"+str(x), Unit=x+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
+                Domoticz.Log("Creating Device [Home "+chr(ord(prefix)+x)+" Switch"+str(x)+"]")
+                Domoticz.Device(Name="Home "+chr(ord(prefix)+x)+" Switch"+str(x), Unit=x+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
 
 def DeviceExists(DeviceId):
     for d in Devices:
