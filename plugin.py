@@ -84,14 +84,16 @@ class BasePlugin:
     def onStart(self):
         homeAddresses = Parameters["Mode1"].split(";")
 
-        Domoticz.Log("Devices: ["+str(len(Devices))+"] HomeAddresses: "+str(len(homeAddresses)))
+        Domoticz.Log("["+str(len(homeAddresses))+"] HomeAddresses ["+str(len(Devices))+"] Devices")
+
+        deviceCount = len(Devices)
 
         # Can have up too 5 switches per home address, Switch ALL, 1, 2, 3, 4
-        if(len(Devices) < len(homeAddresses) * 5):
+        if(deviceCount < len(homeAddresses) * 5):
             Domoticz.Log("Creating Devices")
             for x in range(0, len(homeAddresses)):
                 AddSwitches(x)
-            Domoticz.Log("Created "+str(len(Devices))+" Devices")
+            Domoticz.Log("Created "+str(len(Devices) - deviceCount)+" Devices")
 
         for Device in Devices:
             Devices[Device].Update(nValue=Devices[Device].nValue, sValue=Devices[Device].sValue)
@@ -141,7 +143,8 @@ def sendCommand(Command):
 
 def AddSwitches(BaseIndex):
     prefix = 'A'
-    for x in range(BaseIndex, BaseIndex * 5):
+
+    for x in range(0, BaseIndex * 5):
         prefix = prefix + BaseIndex
         if((x % 5) == 0):
             Domoticz.Log("Creating Device [Home "+str(prefix)+" Switch ALL]")
