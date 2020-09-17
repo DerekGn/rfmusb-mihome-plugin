@@ -23,9 +23,7 @@
     </description>
     <params>
         <param field="SerialPort" label="Serial Port" width="150px" required="true" default="/dev/serial1"/>
-        <param field="Mode1" label="Home Addresss A" width="300px" required="true" default="6C6C6"/>
-        <param field="Mode2" label="Home Address B" width="150px" required="false"/>
-        <param field="Mode3" label="Home Address C" width="150px" required="false"/>
+        <param field="Mode1" label="Home Addresses" width="300px" required="true" default="6C6C6"/>
         <param field="Mode4" label="Tx Power Level" width="100px" required="true" default="0">
             <options>
                 <option label="-2 dbm" value="-2"/>
@@ -84,11 +82,14 @@ class BasePlugin:
         return
     
     def onStart(self):
-        if (len(Devices) == 0):
+        homeAddresses = Parameters["Mode1"].Split(";")
+
+        # Can have up too 5 switches per home address, Switch ALL, 1, 2, 3, 4
+        if(len(Devices) < len(homeAddresses) * 5):
             Domoticz.Log("Creating Devices")
-            AddSwitches("A", 0)
-            AddSwitches("B", 5)
-            AddSwitches("C", 10)
+            for x in range(0, len(homeAddresses) * 5):
+                Domoticz.Device(Name="Home Switch"+str(x), Unit=x, Type=244, SubType=62).Create()
+
             Domoticz.Log("Created "+str(len(Devices))+" Devices")
 
         SerialConn = Domoticz.Connection(Name="Serial Connection", Transport="Serial", Protocol="None", Address=Parameters["SerialPort"], Baud=115200)
