@@ -88,7 +88,7 @@ class BasePlugin:
         if(len(Devices) < len(homeAddresses) * 5):
             Domoticz.Log("Creating Devices")
             for x in range(0, len(homeAddresses) * 5):
-                Domoticz.Device(Name="Home Switch"+str(x), Unit=x, Type=244, SubType=62).Create()
+                Domoticz.Device(Name="Home Switch"+str(x), Unit=x, Type=244, Subtype=62, Switchtype=0).Create()
 
             Domoticz.Log("Created "+str(len(Devices))+" Devices")
 
