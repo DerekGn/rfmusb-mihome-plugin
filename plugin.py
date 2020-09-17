@@ -48,15 +48,15 @@ import Domoticz
 class BasePlugin:
     SerialConn = None
     enabled = False
-    commandSent = False
+    lastCommand = ""
 
     def __init__(self):
         #self.var = 123
         return
-
+    
     def onStart(self):
         Domoticz.Log("onStart called")
-        SerialConn = Domoticz.Connection(Name="Serial Connection", Transport="Serial", Protocol="Line", Address=Parameters["SerialPort"], Baud=115200)
+        SerialConn = Domoticz.Connection(Name="Serial Connection", Transport="Serial", Protocol="None", Address=Parameters["SerialPort"], Baud=115200)
         SerialConn.Connect()
 
     def onStop(self):
@@ -67,13 +67,15 @@ class BasePlugin:
         if (Status == 0):
             Domoticz.Log("Connected successfully to: "+Parameters["SerialPort"])
             SerialConn = Connection
+            sendCommand("g-fv\n")
         else:
             Domoticz.Log("Failed to connect ("+str(Status)+") to: "+Parameters["SerialPort"])
             Domoticz.Debug("Failed to connect ("+str(Status)+") to: "+Parameters["SerialPort"]+" with error: "+Description)
         return True
 
     def onMessage(self, Connection, Data):
-        Domoticz.Log("Recived data from RfmUsb ["+str(Data.decode("ascii"))+"]")
+        strData = Data.decode("ascii")
+        Domoticz.Log("Recived data from RfmUsb ["+strData+"]")
 
     def onCommand(self, Unit, Command, Level, Hue):
         Domoticz.Log("onCommand called for Unit " + str(Unit) + ": Parameter '" + str(Command) + "', Level: " + str(Level))
@@ -87,6 +89,12 @@ class BasePlugin:
 
     def onHeartbeat(self):
         Domoticz.Log("onHeartbeat called")
+
+# Support functions
+def sendCommand(Command):
+    global SerialConn, lastCommand
+    lastCommand = Command
+    SerialConn.Send(Command)
 
 global _plugin
 _plugin = BasePlugin()
