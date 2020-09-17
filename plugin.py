@@ -144,7 +144,6 @@ def AddDevices(BaseIndex):
     prefix = 'A'
 
     for x in range(0, BaseIndex * 5):
-
         if((x % 5) == 0):
             if(not DeviceExists(x+1)):
                 Domoticz.Log("Creating Device [Home "+chr(ord(prefix)+x)+" Switch ALL]")
@@ -156,8 +155,8 @@ def AddDevices(BaseIndex):
 
 def DeviceExists(DeviceId):
     for Device in Devices:
-        if(Device.Unit == DeviceId):
-            Domoticz.Log("Device With nValue["+str(Device.Unit)+"] exists")
+        if(Device.DeviceID == DeviceId):
+            Domoticz.Log("Device With nValue["+str(Device.DeviceID)+"] exists")
             return True
     
     Domoticz.Log("No Device with nValue: ["+str(DeviceId)+"] Found")
