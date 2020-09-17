@@ -19,21 +19,47 @@
             <li>Switch - On off control</li>
         </ul>
         <h3>Configuration</h3>
-        Configuration options...
+        Serial port is the name of the 
     </description>
     <params>
         <param field="SerialPort" label="Serial Port" width="150px" required="true" default="/dev/serial1"/>
-        <param field="Mode1" label="Home Addresss" width="300px" required="true" default="6C6C6"/>
-        <param field="Mode2" label="Tx Count" width="100px">
+        <param field="Mode1" label="Home Addresss A" width="300px" required="true" default="6C6C6"/>
+        <param field="Mode2" label="Home Address B" width="150px" required="false"/>
+        <param field="Mode3" label="Home Address C" width="150px" required="false"/>
+        <param field="Mode4" label="Tx Power Level" width="100px" required="true" default="0">
+            <options>
+                <option label="-2 dbm" value="-2"/>
+                <option label="-1 dbm" value="-1"/>
+                <option label="0 dbm" value="0"/>
+                <option label="1 dbm" value="1"/>
+                <option label="2 dbm" value="2"/>
+                <option label="3 dbm" value="3"/>
+                <option label="4 dbm" value="4"/>
+                <option label="5 dbm" value="5"/>
+                <option label="6 dbm" value="6"/>
+                <option label="7 dbm" value="7"/>
+                <option label="8 dbm" value="8"/>
+                <option label="9 dbm" value="9"/>
+                <option label="10 dbm" value="10"/>
+                <option label="11 dbm" value="11"/>
+                <option label="12 dbm" value="12"/>
+                <option label="13 dbm" value="13"/>
+                <option label="14 dbm" value="14"/>
+                <option label="15 dbm" value="15"/>
+                <option label="16 dbm" value="16"/>
+                <option label="17 dbm" value="17"/>
+                <option label="18 dbm" value="18"/>
+                <option label="19 dbm" value="19"/>
+                <option label="20 dbm" value="20"/>
+            </options>
+        </param>
+        <param field="Mode5" label="Tx Count" width="100px" default="5">
             <options>
                 <option label="Five" value="5"/>
                 <option label="Eight" value="8"/>
                 <option label="Thirteen" value="13"/>
             </options>
         </param>
-        <param field="Mode3" label="Home Address C" width="150px" required="false"/>
-        <param field="Mode4" label="Home Address D" width="150px" required="false"/>
-        <param field="Mode5" label="Home Address E" width="150px" required="false"/>
         <param field="Mode6" label="Debug" width="75px">
             <options>
                 <option label="True" value="Debug"/>
@@ -46,6 +72,9 @@
 import Domoticz
 
 class BasePlugin:
+
+    GET_FIRMWARE_VERSION = "g-fv\n"
+
     SerialConn = None
     enabled = False
     lastCommand = ""
@@ -55,7 +84,13 @@ class BasePlugin:
         return
     
     def onStart(self):
-        Domoticz.Log("onStart called")
+        if (len(Devices) == 0):
+            Domoticz.Log("Creating Devices")
+            AddSwitches("A", 0)
+            AddSwitches("B", 5)
+            AddSwitches("C", 10)
+            Domoticz.Log("Created "+str(len(Devices))+" Devices")
+
         SerialConn = Domoticz.Connection(Name="Serial Connection", Transport="Serial", Protocol="None", Address=Parameters["SerialPort"], Baud=115200)
         SerialConn.Connect()
 
@@ -75,7 +110,10 @@ class BasePlugin:
 
     def onMessage(self, Connection, Data):
         strData = Data.decode("ascii")
-        Domoticz.Log("Recived data from RfmUsb ["+strData+"]")
+        Domoticz.Debug("Received data from RfmUsb ["+strData+"]")
+
+        if(lastCommand == BasePlugin.GET_FIRMWARE_VERSION):
+            return True
 
     def onCommand(self, Unit, Command, Level, Hue):
         Domoticz.Log("onCommand called for Unit " + str(Unit) + ": Parameter '" + str(Command) + "', Level: " + str(Level))
@@ -95,6 +133,13 @@ def sendCommand(Command):
     global SerialConn, lastCommand
     lastCommand = Command
     SerialConn.Send(Command)
+def AddSwitches(Prefix, BaseIndex):
+    for x in range(BaseIndex, BaseIndex + 5):
+        if((x % 5) == 0):
+            Domoticz.Log("Creating Device [Home "+str(Prefix)+" Switch All]")
+        else:
+            Domoticz.Log("Creating Device [Home "+str(Prefix)+" Switch"+str(x)+"]")
+        #Domoticz.Device(Name="Home "+str(Prefix)+" Switch"+str(x), Unit=x, TypeName="Switch").Create()
 
 global _plugin
 _plugin = BasePlugin()
