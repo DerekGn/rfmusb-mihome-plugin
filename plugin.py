@@ -155,9 +155,9 @@ def AddDevices(BaseIndex):
                 Domoticz.Device(Name="Home "+chr(ord(prefix)+x)+" Switch"+str(x), Unit=x+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
 
 def DeviceExists(DeviceId):
-    for d in Devices:
-        if(d.nValue == DeviceId):
-            Domoticz.Log("Device With nValue["+str(d.nValue)+"] exists")
+    for Device in Devices:
+        if(Device.Unit == DeviceId):
+            Domoticz.Log("Device With nValue["+str(Device.Unit)+"] exists")
             return True
     
     Domoticz.Log("No Device with nValue: ["+str(DeviceId)+"] Found")
