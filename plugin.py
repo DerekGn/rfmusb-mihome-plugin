@@ -140,16 +140,19 @@ def sendCommand(Command):
     lastCommand = Command
     SerialConn.Send(Command)
 
-def AddDevices(BaseIndex):
-    prefix = 'A'
+def AddDevices(Index):
+    prefix = ord('A')
 
-    for x in range(0, BaseIndex * 5):
-        if((x % 5) == 0):
-            Domoticz.Log("Creating Device [Home "+chr(ord(prefix)+x)+" Switch ALL]")
-            Domoticz.Device(Name="Home "+chr(ord(prefix)+x)+" Switch ALL", Unit=x+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
-        else:
-            Domoticz.Log("Creating Device [Home "+chr(ord(prefix)+x)+" Switch"+str(x)+"]")
-            Domoticz.Device(Name="Home "+chr(ord(prefix)+x)+" Switch"+str(x), Unit=x+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
+    for i in range(0, Index):
+        for y in (i * 5, (i * 5) + 5):
+            if((y % 5) == 0):
+                Domoticz.Log("Creating Device [Home "+chr(prefix)+" Switch ALL]")
+                Domoticz.Device(Name="Home "+chr(prefix)+" Switch ALL", Unit=y+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
+            else:
+                Domoticz.Log("Creating Device [Home "+chr(prefix)+" Switch "+str(y+1/5)+"]")
+                Domoticz.Device(Name="Home "+chr(prefix)+" Switch "+str(y+1/5), Unit=y+1/5, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
+        
+        prefix = prefix + 1
         
 global _plugin
 _plugin = BasePlugin()
