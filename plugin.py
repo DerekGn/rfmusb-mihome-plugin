@@ -150,8 +150,8 @@ def AddDevices(Index):
                 Domoticz.Log("Creating Device [Home "+chr(prefix)+" Switch ALL]")
                 Domoticz.Device(Name="Home "+chr(prefix)+" Switch ALL", Unit=unitId+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
             else:
-                Domoticz.Log("Creating Device [Home "+chr(prefix)+" Switch "+str(y+1)+"]")
-                Domoticz.Device(Name="Home "+chr(prefix)+" Switch "+str(y+1), Unit=unitId+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
+                Domoticz.Log("Creating Device [Home "+chr(prefix)+" Switch "+str(y)+"]")
+                Domoticz.Device(Name="Home "+chr(prefix)+" Switch "+str(y), Unit=unitId+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
         
         prefix = prefix + 1
         
