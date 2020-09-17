@@ -87,8 +87,8 @@ class BasePlugin:
         # Can have up too 5 switches per home address, Switch ALL, 1, 2, 3, 4
         if(len(Devices) < len(homeAddresses) * 5):
             Domoticz.Log("Creating Devices")
-            for x in range(1, (len(homeAddresses) * 5) + 1):
-                Domoticz.Device(Name="Home Switch"+str(x), Unit=x, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
+            for x in range(0, len(homeAddresses)):
+                AddSwitches(x)
             Domoticz.Log("Created "+str(len(Devices))+" Devices")
 
         for Device in Devices:
@@ -136,13 +136,17 @@ def sendCommand(Command):
     global SerialConn, lastCommand
     lastCommand = Command
     SerialConn.Send(Command)
-def AddSwitches(Prefix, BaseIndex):
-    for x in range(BaseIndex, BaseIndex + 5):
+
+def AddSwitches(BaseIndex):
+    prefix = 'A'
+    for x in range(BaseIndex, BaseIndex * 5):
+        prefix = prefix + BaseIndex
         if((x % 5) == 0):
-            Domoticz.Log("Creating Device [Home "+str(Prefix)+" Switch All]")
+            Domoticz.Log("Creating Device [Home "+str(prefix)+" Switch ALL]")
+            Domoticz.Device(Name="Home "+prefix+" Switch ALL", Unit=x+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
         else:
-            Domoticz.Log("Creating Device [Home "+str(Prefix)+" Switch"+str(x)+"]")
-        #Domoticz.Device(Name="Home "+str(Prefix)+" Switch"+str(x), Unit=x, TypeName="Switch").Create()
+            Domoticz.Log("Creating Device [Home "+str(prefix)+" Switch"+str(x)+"]")
+            Domoticz.Device(Name="Home "+str(prefix)+" Switch"+str(x), Unit=x+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
 
 global _plugin
 _plugin = BasePlugin()
