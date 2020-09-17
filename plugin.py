@@ -84,6 +84,8 @@ class BasePlugin:
     def onStart(self):
         homeAddresses = Parameters["Mode1"].split(";")
 
+        Domoticz.Log("Devices: ["+str(len(Devices))+"] HomeAddresses: "+str(len(homeAddresses)))
+
         # Can have up too 5 switches per home address, Switch ALL, 1, 2, 3, 4
         if(len(Devices) < len(homeAddresses) * 5):
             Domoticz.Log("Creating Devices")
