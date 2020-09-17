@@ -87,7 +87,7 @@ class BasePlugin:
         # Can have up too 5 switches per home address, Switch ALL, 1, 2, 3, 4
         if(len(Devices) < len(homeAddresses) * 5):
             Domoticz.Log("Creating Devices")
-            for x in range(0, len(homeAddresses) * 5):
+            for x in range(1, (len(homeAddresses) * 5) + 1):
                 Domoticz.Device(Name="Home Switch"+str(x), Unit=x, Type=244, Subtype=62, Switchtype=0).Create()
 
             Domoticz.Log("Created "+str(len(Devices))+" Devices")
