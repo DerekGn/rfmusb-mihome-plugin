@@ -91,8 +91,7 @@ class BasePlugin:
         # Can have up too 5 switches per home address, Switch ALL, 1, 2, 3, 4
         if(deviceCount < len(homeAddresses) * 5):
             Domoticz.Log("Creating Devices")
-            for x in range(0, len(homeAddresses)):
-                AddSwitches(x)
+            AddDevices(len(homeAddresses))
             Domoticz.Log("Created "+str(len(Devices) - deviceCount)+" Devices")
 
         for Device in Devices:
@@ -141,18 +140,30 @@ def sendCommand(Command):
     lastCommand = Command
     SerialConn.Send(Command)
 
-def AddSwitches(BaseIndex):
+def AddDevices(BaseIndex):
     prefix = 'A'
 
     for x in range(0, BaseIndex * 5):
-        prefix = prefix + BaseIndex
+        prefix = prefix + x
         if((x % 5) == 0):
-            Domoticz.Log("Creating Device [Home "+str(prefix)+" Switch ALL]")
-            Domoticz.Device(Name="Home "+prefix+" Switch ALL", Unit=x+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
+            if(not DeviceExists(x+1)):
+                Domoticz.Log("Creating Device [Home "+str(prefix)+" Switch ALL]")
+                Domoticz.Device(Name="Home "+prefix+" Switch ALL", Unit=x+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
         else:
-            Domoticz.Log("Creating Device [Home "+str(prefix)+" Switch"+str(x)+"]")
-            Domoticz.Device(Name="Home "+str(prefix)+" Switch"+str(x), Unit=x+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
+            if(not DeviceExists(x+1)):    
+                Domoticz.Log("Creating Device [Home "+str(prefix)+" Switch"+str(x)+"]")
+                Domoticz.Device(Name="Home "+str(prefix)+" Switch"+str(x), Unit=x+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
 
+def DeviceExists(DeviceId):
+    for d in Devices:
+        if(d.nValue == DeviceId):
+            Domoticz.Log("Device With nValue["+str(d.nValue)+"] exists")
+            return True
+    
+    Domoticz.Log("No Device with nValue: ["+str(DeviceId)+"] Found")
+    return False
+
+        
 global _plugin
 _plugin = BasePlugin()
 
