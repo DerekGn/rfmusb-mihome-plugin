@@ -143,14 +143,15 @@ def sendCommand(Command):
 def AddDevices(Index):
     prefix = ord('A')
 
-    for i in range(0, Index):
-        for y in (i * 5, (i * 5) + 5):
-            if((y % 5) == 0):
+    for i in range(Index):
+        for y in range(5):
+            unitId = (i * 5) + y
+            if((unitId % 5) == 0):
                 Domoticz.Log("Creating Device [Home "+chr(prefix)+" Switch ALL]")
-                Domoticz.Device(Name="Home "+chr(prefix)+" Switch ALL", Unit=y+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
+                Domoticz.Device(Name="Home "+chr(prefix)+" Switch ALL", Unit=unitId+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
             else:
-                Domoticz.Log("Creating Device [Home "+chr(prefix)+" Switch "+str(y)+"]")
-                Domoticz.Device(Name="Home "+chr(prefix)+" Switch "+str(y+1), Unit=y+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
+                Domoticz.Log("Creating Device [Home "+chr(prefix)+" Switch "+str(unitId+1)+"]")
+                Domoticz.Device(Name="Home "+chr(prefix)+" Switch "+str(unitId+1), Unit=unitId+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
         
         prefix = prefix + 1
         
