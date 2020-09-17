@@ -145,23 +145,11 @@ def AddDevices(BaseIndex):
 
     for x in range(0, BaseIndex * 5):
         if((x % 5) == 0):
-            if(not DeviceExists(x+1)):
-                Domoticz.Log("Creating Device [Home "+chr(ord(prefix)+x)+" Switch ALL]")
-                Domoticz.Device(Name="Home "+chr(ord(prefix)+x)+" Switch ALL", Unit=x+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
+            Domoticz.Log("Creating Device [Home "+chr(ord(prefix)+x)+" Switch ALL]")
+            Domoticz.Device(Name="Home "+chr(ord(prefix)+x)+" Switch ALL", Unit=x+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
         else:
-            if(not DeviceExists(x+1)):    
-                Domoticz.Log("Creating Device [Home "+chr(ord(prefix)+x)+" Switch"+str(x)+"]")
-                Domoticz.Device(Name="Home "+chr(ord(prefix)+x)+" Switch"+str(x), Unit=x+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
-
-def DeviceExists(DeviceId):
-    for Device in Devices:
-        if(Device.DeviceID == DeviceId):
-            Domoticz.Log("Device With nValue["+str(Device.DeviceID)+"] exists")
-            return True
-    
-    Domoticz.Log("No Device with nValue: ["+str(DeviceId)+"] Found")
-    return False
-
+            Domoticz.Log("Creating Device [Home "+chr(ord(prefix)+x)+" Switch"+str(x)+"]")
+            Domoticz.Device(Name="Home "+chr(ord(prefix)+x)+" Switch"+str(x), Unit=x+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
         
 global _plugin
 _plugin = BasePlugin()
