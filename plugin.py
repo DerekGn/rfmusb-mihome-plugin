@@ -158,14 +158,14 @@ class BasePlugin:
         Domoticz.Log(
             "Command Executed: ["+self.LastCommand+"] Respose: ["+strData+"] ")
 
-        if(not self.IsInitalised):
+        if(self.IsInitalised == False):
             if(self.CommandIndex < len(self.InitCommands)):
                 self.SendCommand(self.InitCommands[self.CommandIndex])
                 self.CommandIndex = self.CommandIndex + 1
             else:
                 self.IsInitalised = True
 
-        if(self.IsSwitching):
+        if(self.IsSwitching == True):
             if(self.SwitchMessageCount < int(Parameters["Mode5"])):
                 Domoticz.Log("["+str(self.SwitchMessageCount)+"]Sending Switch Message: ["+str(self.SwitchMessage)+"]")
                 self.SendCommand("s-fifo " + binascii.hexlify(bytearray(self.SwitchMessage)))
@@ -183,7 +183,7 @@ class BasePlugin:
         Domoticz.Log("onCommand called for Unit " + str(Unit) +
                      ": Parameter '" + str(Command) + "', Level: " + str(Level))
 
-        if(self.IsInitalised and not self.IsSwitching):
+        if(self.IsInitalised == True and self.IsSwitching== True):
             homeAddress = self.DetermineDeviceHomeAddress(Unit)
             deviceAddress = Unit % 5
             
@@ -197,7 +197,7 @@ class BasePlugin:
             self.SendCommand(self.CMD_SET_TX_MODE_COMMAND)
             Domoticz.Log("Started Executing Switching ["+str(Unit)+"] Command["+Command+"]")
         else:
-            if(not self.IsInitalised):
+            if(self.IsInitalised == False):
                 Domoticz.Log("Not initalised")
             else:
                 Domoticz.Log("Switching in progress")
