@@ -71,11 +71,30 @@ import Domoticz
 
 class BasePlugin:
 
-    GET_FIRMWARE_VERSION = "g-fv\n"
+    GET_FIRMWARE_VERSION = "g-fv"
 
+    InitCommands = [
+            "e-r",
+            "s-mt 1",
+            "s-fd 0",
+            "s-f 433920000",
+            "s-br 4800",
+            "s-ps 0",
+            "s-se 0"
+            "s-ss 0",
+            "s-sbe 0",
+            "s-pf 1",
+            "s-cc 0",
+            "s-caco 0",
+            "s-af 0",
+            "s-dio 0 1",
+            "s-di 1"
+            ]
+    
+    LastCommand = ""
+    CommandIndex = 0
     SerialConn = None
-    enabled = False
-    lastCommand = ""
+    Initalised = False
 
     def __init__(self):
         #self.var = 123
@@ -106,8 +125,7 @@ class BasePlugin:
     def onConnect(self, Connection, Status, Description):
         if (Status == 0):
             Domoticz.Log("Connected successfully to: "+Parameters["SerialPort"])
-            self.SerialConn = Connection
-            self.sendCommand("g-fv\n")
+            self.SendCommand(self.GET_FIRMWARE_VERSION)
         else:
             Domoticz.Log("Failed to connect ("+str(Status)+") to: "+Parameters["SerialPort"])
             Domoticz.Debug("Failed to connect ("+str(Status)+") to: "+Parameters["SerialPort"]+" with error: "+Description)
@@ -115,19 +133,23 @@ class BasePlugin:
 
     def onMessage(self, Connection, Data):
         strData = Data.decode("ascii")
-        Domoticz.Debug("Received data from RfmUsb ["+strData+"]")
+        Domoticz.Log("Received data from RfmUsb ["+strData+"] Last Command: ["+self.LastCommand+"]")
 
-        if(self.lastCommand == BasePlugin.GET_FIRMWARE_VERSION):
-            return True
+        if(self.Initalised == False):
+            self.SendCommand(self.InitCommands[self.CommandIndex])
+            self.CommandIndex = self.CommandIndex + 1
 
     def onCommand(self, Unit, Command, Level, Hue):
         Domoticz.Log("onCommand called for Unit " + str(Unit) + ": Parameter '" + str(Command) + "', Level: " + str(Level))
         
-        if(Command == "On"):
-            self.UpdateDevice(Unit, 1, "100")
+        if(self.Initalised == True):
+            #deviceHomeAddress = 
+            if(Command == "On"):
+                self.UpdateDevice(Unit, 1, "100")
+            else:
+                self.UpdateDevice(Unit, 0, "0")
         else:
-            self.UpdateDevice(Unit, 0, "0")
-
+            Domoticz.Log("RfmUsb not initalise")
 
     def onNotification(self, Name, Subject, Text, Status, Priority, Sound, ImageFile):
         Domoticz.Log("Notification: " + Name + "," + Subject + "," + Text + "," + Status + "," + str(Priority) + "," + Sound + "," + ImageFile)
@@ -140,8 +162,8 @@ class BasePlugin:
         pass
 
     # Support functions
-    def sendCommand(self, Command):
-        self.lastCommand = Command
+    def SendCommand(self, Command):
+        self.LastCommand = Command
         self.SerialConn.Send(Command)
 
     def AddDevices(self,Index):
