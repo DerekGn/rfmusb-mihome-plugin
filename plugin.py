@@ -91,7 +91,7 @@ class BasePlugin:
         # Can have up too 5 switches per home address, Switch ALL, 1, 2, 3, 4
         if(deviceCount < len(homeAddresses) * 5):
             Domoticz.Log("Creating Devices")
-            AddDevices(len(homeAddresses))
+            self.AddDevices(len(homeAddresses))
             Domoticz.Log("Created "+str(len(Devices) - deviceCount)+" Devices")
 
         for Device in Devices:
@@ -104,11 +104,10 @@ class BasePlugin:
         Domoticz.Log("onStop called")
 
     def onConnect(self, Connection, Status, Description):
-        global SerialConn
         if (Status == 0):
             Domoticz.Log("Connected successfully to: "+Parameters["SerialPort"])
-            SerialConn = Connection
-            sendCommand("g-fv\n")
+            self.SerialConn = Connection
+            self.sendCommand("g-fv\n")
         else:
             Domoticz.Log("Failed to connect ("+str(Status)+") to: "+Parameters["SerialPort"])
             Domoticz.Debug("Failed to connect ("+str(Status)+") to: "+Parameters["SerialPort"]+" with error: "+Description)
@@ -118,11 +117,17 @@ class BasePlugin:
         strData = Data.decode("ascii")
         Domoticz.Debug("Received data from RfmUsb ["+strData+"]")
 
-        if(lastCommand == BasePlugin.GET_FIRMWARE_VERSION):
+        if(self.lastCommand == BasePlugin.GET_FIRMWARE_VERSION):
             return True
 
     def onCommand(self, Unit, Command, Level, Hue):
         Domoticz.Log("onCommand called for Unit " + str(Unit) + ": Parameter '" + str(Command) + "', Level: " + str(Level))
+        
+        if(Command == "On"):
+            Devices[Unit-1].Update(1,"100")
+        else:
+            Devices[Unit-1].Update(0,"0")
+
 
     def onNotification(self, Name, Subject, Text, Status, Priority, Sound, ImageFile):
         Domoticz.Log("Notification: " + Name + "," + Subject + "," + Text + "," + Status + "," + str(Priority) + "," + Sound + "," + ImageFile)
@@ -134,26 +139,25 @@ class BasePlugin:
     def onHeartbeat(self):
         pass
 
-# Support functions
-def sendCommand(Command):
-    global SerialConn, lastCommand
-    lastCommand = Command
-    SerialConn.Send(Command)
+    # Support functions
+    def sendCommand(self, Command):
+        self.lastCommand = Command
+        self.SerialConn.Send(Command)
 
-def AddDevices(Index):
-    prefix = ord('A')
+    def AddDevices(self,Index):
+        prefix = ord('A')
 
-    for i in range(Index):
-        for y in range(5):
-            unitId = (i * 5) + y
-            if((unitId % 5) == 0):
-                Domoticz.Log("Creating Device [Home "+chr(prefix)+" Switch ALL]")
-                Domoticz.Device(Name="Home "+chr(prefix)+" Switch ALL", Unit=unitId+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
-            else:
-                Domoticz.Log("Creating Device [Home "+chr(prefix)+" Switch "+str(y)+"]")
-                Domoticz.Device(Name="Home "+chr(prefix)+" Switch "+str(y), Unit=unitId+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
-        
-        prefix = prefix + 1
+        for i in range(Index):
+            for y in range(5):
+                unitId = (i * 5) + y
+                if((unitId % 5) == 0):
+                    Domoticz.Log("Creating Device [Home "+chr(prefix)+" Switch ALL]")
+                    Domoticz.Device(Name="Home "+chr(prefix)+" Switch ALL", Unit=unitId+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
+                else:
+                    Domoticz.Log("Creating Device [Home "+chr(prefix)+" Switch "+str(y)+"]")
+                    Domoticz.Device(Name="Home "+chr(prefix)+" Switch "+str(y), Unit=unitId+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
+            
+            prefix = prefix + 1
         
 global _plugin
 _plugin = BasePlugin()
