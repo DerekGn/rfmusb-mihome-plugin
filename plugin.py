@@ -125,6 +125,7 @@ class BasePlugin:
     def onConnect(self, Connection, Status, Description):
         if (Status == 0):
             Domoticz.Log("Connected successfully to: "+Parameters["SerialPort"])
+            self.SerialConn = Connection
             self.SendCommand(self.GET_FIRMWARE_VERSION)
         else:
             Domoticz.Log("Failed to connect ("+str(Status)+") to: "+Parameters["SerialPort"])
@@ -164,7 +165,7 @@ class BasePlugin:
     # Support functions
     def SendCommand(self, Command):
         self.LastCommand = Command
-        self.SerialConn.Send(Command)
+        self.SerialConn.Send(Command + "\n")
 
     def AddDevices(self,Index):
         prefix = ord('A')
