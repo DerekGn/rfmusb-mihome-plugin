@@ -79,7 +79,6 @@ class BasePlugin:
     COMMAND_RESULT_OK = "OK"
 
     InitCommands = [
-        "e-r",
         "s-mt 1",
         "s-fd 0",
         "s-f 433920000",
@@ -195,7 +194,7 @@ class BasePlugin:
 
             # enable Tx mode
             self.SendCommand(self.CMD_SET_TX_MODE_COMMAND)
-            Domoticz.Log("Started Executing Switching ["+str(Unit)+"] Command["+Command+"]")
+            Domoticz.Log("Started Executing Switching ["+str(Unit)+"] Command ["+Command+"]")
         else:
             if(self.IsInitalised == False):
                 Domoticz.Log("Not initalised")
