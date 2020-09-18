@@ -69,7 +69,7 @@
 """
 import Domoticz
 import encoder
-import binascii
+
 
 class BasePlugin:
 
@@ -103,7 +103,7 @@ class BasePlugin:
     SwitchMessageCount = 0
     SwitchingCommand = ""
     SwitchMessage = []
-    SwitchingUnit = None
+    UnitSwitchingId = 0
     IsSwitching = False
 
     def __init__(self):
@@ -166,15 +166,20 @@ class BasePlugin:
 
         if(self.IsSwitching == True):
             if(self.SwitchMessageCount < int(Parameters["Mode5"])):
-                Domoticz.Log("["+str(self.SwitchMessageCount)+"]Sending Switch Message: ["+str(self.SwitchMessage)+"]")
-                self.SendCommand("s-fifo " + str(''.join(format(x, '02x') for x in self.SwitchMessage) ))
+                Domoticz.Log("["+str(self.SwitchMessageCount) +
+                             "]Sending Switch Message: ["+str(self.SwitchMessage)+"]")
+                self.SendCommand(
+                    "s-fifo " + str(''.join(format(x, '02x') for x in self.SwitchMessage)))
                 self.SwitchMessageCount = self.SwitchMessageCount + 1
             else:
                 if(self.SwitchingCommand == "On"):
-                    self.UpdateDevice(self.SwitchingUnit, 1, "100")
+                    Domoticz.Log("Setting Switch State: " +
+                                 self.SwitchingCommand)
+                    self.UpdateDevice(self.UnitSwitchingId, 1, "100")
                 else:
-                    self.UpdateDevice(self.SwitchingUnit, 0, "0")
-                self.SwitchingUnit = None
+                    self.UpdateDevice(self.UnitSwitchingId, 0, "0")
+
+                self.UnitSwitchingId = 0
                 self.IsSwitching = False
                 self.SendCommand(self.CMD_SET_STBY_MODE_COMMAND)
 
@@ -185,16 +190,18 @@ class BasePlugin:
         if(self.IsInitalised == True and self.IsSwitching == False):
             homeAddress = self.DetermineDeviceHomeAddress(Unit)
             deviceAddress = Unit % 5
-            
-            self.SwitchMessage = encoder.build_switch_msg(Command == "On", deviceAddress ,int(homeAddress, base=16))
+
+            self.SwitchMessage = encoder.build_switch_msg(
+                Command == "On", deviceAddress - 1, int(homeAddress, base=16))
             self.SwitchMessageCount = 0
-            self.UnitSwitching = Unit
+            self.UnitSwitchingId = Unit.ID
             self.IsSwitching = True
             self.SwitchingCommand = Command
 
             # enable Tx mode
             self.SendCommand(self.CMD_SET_TX_MODE_COMMAND)
-            Domoticz.Log("Started Executing Switching ["+str(Unit)+"] Command ["+Command+"]")
+            Domoticz.Log(
+                "Started Executing Switching ["+str(Unit)+"] Command ["+Command+"]")
         else:
             if(self.IsInitalised == False):
                 Domoticz.Log("Not initalised")
@@ -236,14 +243,13 @@ class BasePlugin:
 
             prefix = prefix + 1
 
-    def UpdateDevice(self, Unit, nValue, sValue):
-        # Make sure that the Domoticz device still exists (they can be deleted) before updating it
-        if (Unit in Devices):
-            if (Devices[Unit].nValue != nValue) or (Devices[Unit].sValue != sValue):
-                Devices[Unit].Update(nValue=nValue, sValue=str(sValue))
-                Domoticz.Log("Update "+str(nValue)+":'" +
-                             str(sValue)+"' ("+Devices[Unit].Name+")")
-            return
+    def UpdateDevice(self, UnitId, nValue, sValue):
+        for x in Devices:
+            Domoticz.Log("Device: " +str(Devices[x].ID)+" Name: "+Devices[x].Name)
+            if(x.ID == UnitId):
+                Devices[x].Update(nValue=nValue, sValue=str(sValue))
+                Domoticz.Log("Updated Device State: " +
+                             str(Devices[x].ID)+" Name: "+Devices[x].Name)
 
     def DetermineDeviceHomeAddress(self, Unit):
         homeAddress = ""
@@ -257,8 +263,9 @@ class BasePlugin:
                 "No Home Address could be found for Unit:" + str(Unit))
         else:
             homeAddress = homeAddresses[homeAddressIndex]
-            Domoticz.Log("Home Address Found for Unit:" + str(Unit) + "HomeAddress: ["+ str(homeAddress)+"]")
-            
+            Domoticz.Log("Home Address Found for Unit:" +
+                         str(Unit) + "HomeAddress: [" + str(homeAddress)+"]")
+
         return homeAddress
 
 
