@@ -73,7 +73,7 @@ import binascii
 
 class BasePlugin:
 
-    CMD_SET_STBY_MODE_COMMAND = "s-om 0"
+    CMD_SET_STBY_MODE_COMMAND = "s-om 1"
     CMD_SET_TX_MODE_COMMAND = "s-om 3"
     CMD_GET_FIRMWARE_VERSION = "g-fv"
     COMMAND_RESULT_OK = "OK"
