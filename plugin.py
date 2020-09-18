@@ -143,7 +143,7 @@ class BasePlugin:
         return True
 
     def onMessage(self, Connection, Data):
-        strData = Data.decode("ascii").replace("\n")
+        strData = Data.decode("ascii").replace("\n","")
 
         if(not Data.startsWith(self.COMMAND_RESULT_OK)):
             Domoticz.Log("Command Execution Failed ["+strData+"] Last Command: ["+self.LastCommand+"]")    
