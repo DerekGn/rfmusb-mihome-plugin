@@ -146,7 +146,7 @@ class BasePlugin:
         strData = Data.decode("ascii")
         strData = strData.replace("\n","")
 
-        if(not strData.startswith(self.COMMAND_RESULT_OK)):
+        if(not strData.startswith(self.COMMAND_RESULT_OK) and self.LastCommand != self.GET_FIRMWARE_VERSION):
             Domoticz.Log("Command Execution Failed ["+strData+"] Last Command: ["+self.LastCommand+"]")    
         else:
             if(self.IsInitalised == False):
