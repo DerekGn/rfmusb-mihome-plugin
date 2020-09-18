@@ -124,9 +124,9 @@ class BasePlugin:
         Domoticz.Log("onCommand called for Unit " + str(Unit) + ": Parameter '" + str(Command) + "', Level: " + str(Level))
         
         if(Command == "On"):
-            Devices[Unit-1].Update(1,"100")
+            self.UpdateDevice(Unit, 1, "100")
         else:
-            Devices[Unit-1].Update(0,"0")
+            self.UpdateDevice(Unit, 0, "0")
 
 
     def onNotification(self, Name, Subject, Text, Status, Priority, Sound, ImageFile):
@@ -158,6 +158,14 @@ class BasePlugin:
                     Domoticz.Device(Name="Home "+chr(prefix)+" Switch "+str(y), Unit=unitId+1, TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
             
             prefix = prefix + 1
+    
+    def UpdateDevice(self, Unit, nValue, sValue):
+        # Make sure that the Domoticz device still exists (they can be deleted) before updating it 
+        if (Unit in Devices):
+            if (Devices[Unit].nValue != nValue) or (Devices[Unit].sValue != sValue):
+                Devices[Unit].Update(nValue=nValue, sValue=str(sValue))
+                Domoticz.Log("Update "+str(nValue)+":'"+str(sValue)+"' ("+Devices[Unit].Name+")")
+            return
         
 global _plugin
 _plugin = BasePlugin()
