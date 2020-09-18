@@ -104,7 +104,7 @@ class BasePlugin:
     SwitchMessageCount = 0
     SwitchingCommand = ""
     SwitchMessage = []
-    UnitSwitching = None
+    SwitchingUnit = None
     IsSwitching = False
 
     def __init__(self):
@@ -158,7 +158,7 @@ class BasePlugin:
         Domoticz.Log(
             "Command Executed: ["+self.LastCommand+"] Respose: ["+strData+"] ")
 
-        if(self.IsInitalised == False):
+        if(not self.IsInitalised):
             if(self.CommandIndex < len(self.InitCommands)):
                 self.SendCommand(self.InitCommands[self.CommandIndex])
                 self.CommandIndex = self.CommandIndex + 1
@@ -191,11 +191,11 @@ class BasePlugin:
             self.SwitchMessageCount = 0
             self.UnitSwitching = Unit
             self.IsSwitching = True
-
             self.SwitchingCommand = Command
 
             # enable Tx mode
             self.SendCommand(self.CMD_SET_TX_MODE_COMMAND)
+            Domoticz.Log("Started Executing Switching ["+str(Unit)+"] Command["+Command+"]")
         else:
             if(not self.IsInitalised):
                 Domoticz.Log("Not initalised")
@@ -257,9 +257,9 @@ class BasePlugin:
             Domoticz.Log(
                 "No Home Address could be found for Unit:" + str(Unit))
         else:
-            Domoticz.Log("Home Address Found for Unit:" + str(Unit) + "HomeAddress: "+ str(homeAddress)+"]")
             homeAddress = homeAddresses[homeAddressIndex]
-
+            Domoticz.Log("Home Address Found for Unit:" + str(Unit) + "HomeAddress: ["+ str(homeAddress)+"]")
+            
         return homeAddress
 
 
