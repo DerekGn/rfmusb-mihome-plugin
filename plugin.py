@@ -168,7 +168,7 @@ class BasePlugin:
         if(self.IsSwitching == True):
             if(self.SwitchMessageCount < int(Parameters["Mode5"])):
                 Domoticz.Log("["+str(self.SwitchMessageCount)+"]Sending Switch Message: ["+str(self.SwitchMessage)+"]")
-                self.SendCommand("s-fifo " + binascii.hexlify(bytearray(self.SwitchMessage)))
+                self.SendCommand("s-fifo " + str(binascii.hexlify(bytearray(self.SwitchMessage))))
                 self.SwitchMessageCount = self.SwitchMessageCount + 1
             else:
                 if(self.SwitchingCommand == "On"):
