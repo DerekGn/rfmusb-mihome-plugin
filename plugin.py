@@ -132,7 +132,7 @@ class BasePlugin:
         return
 
     def onHeartbeat(self):
-        Domoticz.Log("onHeartbeat called")
+        pass
 
 # Support functions
 def sendCommand(Command):
