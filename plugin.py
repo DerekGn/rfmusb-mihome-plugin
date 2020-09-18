@@ -225,7 +225,7 @@ class BasePlugin:
 
         homeAddresses = Parameters["Mode1"].split(";")
 
-        homeAddressIndex = Unit-1 / 5
+        homeAddressIndex = Unit-1 // 5
 
         if(homeAddressIndex > len(homeAddresses)):
             Domoticz.Log(
