@@ -73,7 +73,8 @@ import Domoticz
 class BasePlugin:
 
     GET_FIRMWARE_VERSION = "g-fv"
-
+    COMMAND_RESULT_OK = "OK"
+    
     InitCommands = [
         "e-r",
         "s-mt 1",
@@ -142,17 +143,17 @@ class BasePlugin:
         return True
 
     def onMessage(self, Connection, Data):
-        strData = Data.decode("ascii")
+        strData = Data.decode("ascii").replace("\n")
 
-        Domoticz.Log(
-            "Received data from RfmUsb ["+strData+"] Last Command: ["+self.LastCommand+"]")
-
-        if(self.IsInitalised == False):
-            if(self.CommandIndex < len(self.InitCommands)):
-                self.SendCommand(self.InitCommands[self.CommandIndex])
-                self.CommandIndex = self.CommandIndex + 1
-            else:
-                self.IsInitalised = True
+        if(not Data.startsWith(self.COMMAND_RESULT_OK)):
+            Domoticz.Log("Command Execution Failed ["+strData+"] Last Command: ["+self.LastCommand+"]")    
+        else:
+            if(self.IsInitalised == False):
+                if(self.CommandIndex < len(self.InitCommands)):
+                    self.SendCommand(self.InitCommands[self.CommandIndex])
+                    self.CommandIndex = self.CommandIndex + 1
+                else:
+                    self.IsInitalised = True
 
     def onCommand(self, Unit, Command, Level, Hue):
         Domoticz.Log("onCommand called for Unit " + str(Unit) +
