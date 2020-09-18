@@ -82,7 +82,7 @@ class BasePlugin:
         "s-f 433920000",
         "s-br 4800",
         "s-ps 0",
-        "s-se 0"
+        "s-se 0",
         "s-ss 0",
         "s-sbe 0",
         "s-pf 1",
@@ -166,7 +166,7 @@ class BasePlugin:
             switchMessage = encoder.build_switch_msg(Command == "On", deviceAddress ,int(homeAddress, base=16))
 
             for x in range(int(Parameters["Mode5"])):
-                Domoticz.Log("["+x+"]Sending Switch Message: ["+str(switchMessage)+"]")
+                Domoticz.Log("["+str(x)+"]Sending Switch Message: ["+str(switchMessage)+"]")
                 #self.SerialConn.Send();
 
             if(Command == "On"):
@@ -225,13 +225,13 @@ class BasePlugin:
 
         homeAddresses = Parameters["Mode1"].split(";")
 
-        homeAddressIndex = Unit-1 // 5
+        homeAddressIndex = (Unit-1) // 5
 
         if(homeAddressIndex > len(homeAddresses)):
             Domoticz.Log(
                 "No Home Address could be found for Unit:" + str(Unit))
         else:
-            Domoticz.Log("Home Address Found for Unit:" + str(Unit))
+            Domoticz.Log("Home Address Found for Unit:" + str(Unit) + "HomeAddress: "+ str(homeAddress)+"]")
             homeAddress = homeAddresses[homeAddressIndex]
 
         return homeAddress
