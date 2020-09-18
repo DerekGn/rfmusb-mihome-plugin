@@ -183,7 +183,7 @@ class BasePlugin:
         Domoticz.Log("onCommand called for Unit " + str(Unit) +
                      ": Parameter '" + str(Command) + "', Level: " + str(Level))
 
-        if(self.IsInitalised == True and self.IsSwitching== True):
+        if(self.IsInitalised == True and self.IsSwitching == False):
             homeAddress = self.DetermineDeviceHomeAddress(Unit)
             deviceAddress = Unit % 5
             
