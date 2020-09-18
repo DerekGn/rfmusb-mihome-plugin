@@ -68,13 +68,13 @@
 </plugin>
 """
 import Domoticz
-
+import encoder
 
 class BasePlugin:
 
     GET_FIRMWARE_VERSION = "g-fv"
     COMMAND_RESULT_OK = "OK"
-    
+
     InitCommands = [
         "e-r",
         "s-mt 1",
@@ -144,24 +144,31 @@ class BasePlugin:
 
     def onMessage(self, Connection, Data):
         strData = Data.decode("ascii")
-        strData = strData.replace("\n","")
+        strData = strData.replace("\n", "")
 
-        if(not strData.startswith(self.COMMAND_RESULT_OK) and self.LastCommand != self.GET_FIRMWARE_VERSION):
-            Domoticz.Log("Command Execution Failed ["+strData+"] Last Command: ["+self.LastCommand+"]")    
-        else:
-            if(self.IsInitalised == False):
-                if(self.CommandIndex < len(self.InitCommands)):
-                    self.SendCommand(self.InitCommands[self.CommandIndex])
-                    self.CommandIndex = self.CommandIndex + 1
-                else:
-                    self.IsInitalised = True
+        Domoticz.Log(
+            "Command Executed: ["+self.LastCommand+"] Respose: ["+strData+"] ")
+        if(self.IsInitalised == False):
+            if(self.CommandIndex < len(self.InitCommands)):
+                self.SendCommand(self.InitCommands[self.CommandIndex])
+                self.CommandIndex = self.CommandIndex + 1
+            else:
+                self.IsInitalised = True
 
     def onCommand(self, Unit, Command, Level, Hue):
         Domoticz.Log("onCommand called for Unit " + str(Unit) +
                      ": Parameter '" + str(Command) + "', Level: " + str(Level))
 
         if(self.IsInitalised == True):
-            # deviceHomeAddress =
+            homeAddress = self.DetermineDeviceHomeAddress(Unit)
+            deviceAddress = Unit % 5
+            
+            switchMessage = encoder.build_switch_msg(Command == "On", deviceAddress ,int(homeAddress, base=16))
+
+            for x in range(int(Parameters["Mode5"])):
+                Domoticz.Log("["+x+"]Sending Switch Message: ["+str(switchMessage)+"]")
+                #self.SerialConn.Send();
+
             if(Command == "On"):
                 self.UpdateDevice(Unit, 1, "100")
             else:
@@ -212,6 +219,22 @@ class BasePlugin:
                 Domoticz.Log("Update "+str(nValue)+":'" +
                              str(sValue)+"' ("+Devices[Unit].Name+")")
             return
+
+    def DetermineDeviceHomeAddress(self, Unit):
+        homeAddress = ""
+
+        homeAddresses = Parameters["Mode1"].split(";")
+
+        homeAddressIndex = Unit-1 / 5
+
+        if(homeAddressIndex > len(homeAddresses)):
+            Domoticz.Log(
+                "No Home Address could be found for Unit:" + str(Unit))
+        else:
+            Domoticz.Log("Home Address Found for Unit:" + str(Unit))
+            homeAddress = homeAddresses[homeAddressIndex]
+
+        return homeAddress
 
 
 global _plugin
