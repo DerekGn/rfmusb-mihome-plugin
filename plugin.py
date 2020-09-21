@@ -194,7 +194,7 @@ class BasePlugin:
             self.SwitchMessage = encoder.build_switch_msg(
                 Command == "On", deviceAddress - 1, int(homeAddress, base=16))
             self.SwitchMessageCount = 0
-            self.UnitSwitchingId = Unit.ID
+            self.UnitSwitchingId = Unit
             self.IsSwitching = True
             self.SwitchingCommand = Command
 
@@ -245,8 +245,8 @@ class BasePlugin:
 
     def UpdateDevice(self, UnitId, nValue, sValue):
         for x in Devices:
-            Domoticz.Log("Device: " +str(Devices[x].ID)+" Name: "+Devices[x].Name)
-            if(x.ID == UnitId):
+            Domoticz.Log("Device: "+str(Devices[x].ID)+" Name: "+Devices[x].Name)
+            if(Devices[x].ID == UnitId):
                 Devices[x].Update(nValue=nValue, sValue=str(sValue))
                 Domoticz.Log("Updated Device State: " +
                              str(Devices[x].ID)+" Name: "+Devices[x].Name)
