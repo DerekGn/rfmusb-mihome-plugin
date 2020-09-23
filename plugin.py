@@ -156,6 +156,9 @@ class BasePlugin:
 
         Domoticz.Log(
             "Command Executed: ["+self.LastCommand+"] Respose: ["+strData+"] ")
+        
+        if(self.IsInitalised == False and self.LastCommand.startswith("s-op")):
+            self.IsInitalised = True
 
         if(self.IsInitalised == False):
             if(self.CommandIndex < len(self.InitCommands)):
@@ -163,9 +166,6 @@ class BasePlugin:
                 self.CommandIndex = self.CommandIndex + 1
             else:
                 self.SendCommand("s-op " + str(Parameters["Mode4"]))
-
-        if(self.IsInitalised == False and self.LastCommand.startswith("s-op")):
-            self.IsInitalised = True
 
         if(self.IsSwitching == True):
             if(self.SwitchMessageCount < int(Parameters["Mode5"])):
