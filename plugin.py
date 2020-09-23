@@ -82,6 +82,7 @@ class BasePlugin:
         "s-mt 1",
         "s-fd 0",
         "s-f 433920000",
+        "s-rxbw 20",
         "s-br 4800",
         "s-ps 0",
         "s-se 0",
