@@ -162,7 +162,10 @@ class BasePlugin:
                 self.SendCommand(self.InitCommands[self.CommandIndex])
                 self.CommandIndex = self.CommandIndex + 1
             else:
-                self.IsInitalised = True
+                self.SendCommand("s-op " + str(Parameters["Mode4"]))
+
+        if(self.IsInitalised == False and self.LastCommand.startswith("s-op")):
+            self.IsInitalised = True
 
         if(self.IsSwitching == True):
             if(self.SwitchMessageCount < int(Parameters["Mode5"])):
