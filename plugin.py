@@ -164,12 +164,11 @@ class BasePlugin:
                 self.SendCommand("s-op " + str(Parameters["Mode4"]))
 
         if(self.IsSwitching == True and self.LastCommand.startswith(self.CMD_EXECUTE_TX)):
+            Domoticz.Log("Setting Switch State: " + str(self.SwitchingCommand))
             if(self.SwitchingCommand == "On"):
-                Domoticz.Log("Setting Switch State: On")
                 self.UpdateDevice(self.UnitSwitchingId, 1, "100")
             else:
                 self.UpdateDevice(self.UnitSwitchingId, 0, "0")
-
             self.IsSwitching = False
 
     def onCommand(self, Unit, Command, Level, Hue):
