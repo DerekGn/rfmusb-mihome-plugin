@@ -73,9 +73,8 @@ import encoder
 
 class BasePlugin:
 
-    CMD_SET_STBY_MODE_COMMAND = "s-om 1"
-    CMD_SET_TX_MODE_COMMAND = "s-om 3"
     CMD_GET_FIRMWARE_VERSION = "g-fv"
+    CMD_EXECUTE_TX = "e-tx "
     COMMAND_RESULT_OK = "OK"
 
     InitCommands = [
@@ -91,9 +90,7 @@ class BasePlugin:
         "s-pf 1",
         "s-cc 0",
         "s-caco 0",
-        "s-af 0",
-        "s-dio 0 1",
-        "s-di 1"
+        "s-af 0"
     ]
 
     LastCommand = ""
@@ -101,11 +98,9 @@ class BasePlugin:
     SerialConn = None
     IsInitalised = False
 
-    SwitchMessageCount = 0
     SwitchingCommand = ""
-    SwitchMessage = []
-    UnitSwitchingId = 0
     IsSwitching = False
+    UnitSwitchingId = 0
 
     def __init__(self):
         #self.var = 123
@@ -168,44 +163,34 @@ class BasePlugin:
             else:
                 self.SendCommand("s-op " + str(Parameters["Mode4"]))
 
-        if(self.IsSwitching == True):
-            if(self.SwitchMessageCount < int(Parameters["Mode5"])):
-                Domoticz.Log("["+str(self.SwitchMessageCount) +
-                             "]Sending Switch Message: ["+str(self.SwitchMessage)+"]")
-                self.SendCommand(
-                    "s-fifo " + str(''.join(format(x, '02x') for x in self.SwitchMessage)))
-                self.SwitchMessageCount = self.SwitchMessageCount + 1
+        if(self.IsSwitching == True and self.LastCommand.startswith(self.CMD_EXECUTE_TX)):
+            if(self.SwitchingCommand == "On"):
+                Domoticz.Log("Setting Switch State: On")
+                self.UpdateDevice(self.UnitSwitchingId, 1, "100")
             else:
-                if(self.SwitchingCommand == "On"):
-                    Domoticz.Log("Setting Switch State: " +
-                                 self.SwitchingCommand)
-                    self.UpdateDevice(self.UnitSwitchingId, 1, "100")
-                else:
-                    self.UpdateDevice(self.UnitSwitchingId, 0, "0")
+                self.UpdateDevice(self.UnitSwitchingId, 0, "0")
 
-                self.UnitSwitchingId = 0
-                self.IsSwitching = False
-                self.SendCommand(self.CMD_SET_STBY_MODE_COMMAND)
+            self.IsSwitching = False
 
     def onCommand(self, Unit, Command, Level, Hue):
         Domoticz.Log("onCommand called for Unit " + str(Unit) +
                      ": Parameter '" + str(Command) + "', Level: " + str(Level))
 
         if(self.IsInitalised == True and self.IsSwitching == False):
+            Domoticz.Log("Switching ["+str(Unit)+"] Command ["+Command+"]")
+
             homeAddress = self.DetermineDeviceHomeAddress(Unit)
             deviceAddress = Unit % 5
 
-            self.SwitchMessage = encoder.build_switch_msg(
-                Command == "On", deviceAddress - 1, int(homeAddress, base=16))
-            self.SwitchMessageCount = 0
             self.UnitSwitchingId = Unit
-            self.IsSwitching = True
             self.SwitchingCommand = Command
 
-            # enable Tx mode
-            self.SendCommand(self.CMD_SET_TX_MODE_COMMAND)
-            Domoticz.Log(
-                "Started Executing Switching ["+str(Unit)+"] Command ["+Command+"]")
+            switchMessageBytes = encoder.build_switch_msg(
+                Command == "On", deviceAddress - 1, int(homeAddress, base=16))
+
+            switchMessage = str(''.join(format(x, '02x') for x in switchMessageBytes))
+
+            self.SendCommand(self.CMD_EXECUTE_TX + str(int(Parameters["Mode5"])) + " " + switchMessage)
         else:
             if(self.IsInitalised == False):
                 Domoticz.Log("Not initalised")
