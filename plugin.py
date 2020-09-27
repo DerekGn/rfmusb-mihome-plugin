@@ -19,7 +19,9 @@
             <li>Switch - On off control</li>
         </ul>
         <h3>Configuration</h3>
-        Serial port is the name of the 
+        <ul style="list-style-type:square">
+            <li>Serial port is the name of the serial port that the Rfm69 is connected</li>
+        </ul>
     </description>
     <params>
         <param field="SerialPort" label="Serial Port" width="150px" required="true" default="/dev/serial1"/>
