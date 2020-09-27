@@ -103,7 +103,6 @@ class BasePlugin:
     UnitSwitchingId = 0
 
     def __init__(self):
-        #self.var = 123
         return
 
     def onStart(self):
@@ -181,9 +180,10 @@ class BasePlugin:
             homeAddress = self.DetermineDeviceHomeAddress(Unit)
             deviceAddress = Unit % 5
 
+            self.IsSwitching = True
             self.UnitSwitchingId = Unit
             self.SwitchingCommand = Command
-
+            
             switchMessageBytes = encoder.build_switch_msg(
                 Command == "On", deviceAddress - 1, int(homeAddress, base=16))
 
@@ -252,7 +252,7 @@ class BasePlugin:
         else:
             homeAddress = homeAddresses[homeAddressIndex]
             Domoticz.Log("Home Address Found for Unit:" +
-                         str(Unit) + "HomeAddress: [" + str(homeAddress)+"]")
+                         str(Unit) + " HomeAddress: [" + str(homeAddress)+"]")
 
         return homeAddress
 
