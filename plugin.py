@@ -233,7 +233,7 @@ class BasePlugin:
 
     def UpdateDevice(self, UnitId, nValue, sValue):
         for x in Devices:
-            Domoticz.Log("Device: "+str(Devices[x].ID)+" Name: "+Devices[x].Name)
+            #Domoticz.Log("Device: "+str(Devices[x].ID)+" Name: "+Devices[x].Name)
             if(Devices[x].ID == UnitId):
                 Devices[x].Update(nValue=nValue, sValue=str(sValue))
                 Domoticz.Log("Updated Device State: " +
