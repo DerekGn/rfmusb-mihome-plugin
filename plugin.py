@@ -20,10 +20,10 @@
         </ul>
         <h3>Configuration</h3>
         <ul style="list-style-type:square">
-            <li>Serial port is the name of the serial port that the Rfm69 is connected</li>
+            <li>Serial port is the name of the serial port that the Rfm69 is enumerated</li>
             <li>Home Addresses is a list of addresses split by a semi colon ;. Defaults to 6c6c6</li>
             <li>Tx Power Level is the Tx power level. Defaults to -2 dbm</li>
-            <li>Tx Count is the number of times the switching message is trasmitted.Defaults to 5</li>
+            <li>Tx Count is the number of times the switching message is transmitted.Defaults to 5</li>
         </ul>
     </description>
     <params>
