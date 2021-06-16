@@ -194,7 +194,7 @@ class BasePlugin:
 
             switchMessage = str(''.join(format(x, '02x') for x in switchMessageBytes))
 
-            self.SendCommand(self.CMD_EXECUTE_TX + str(int(Parameters["Mode5"])) + " " + switchMessage)
+            self.SendCommand(self.CMD_EXECUTE_TX + " " + switchMessage + " " + str(int(Parameters["Mode5"])))
         else:
             if(self.IsInitalised == False):
                 Domoticz.Log("Not initalised")
