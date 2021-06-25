@@ -3,7 +3,7 @@
 # Author: DerekGn
 #
 """
-<plugin key="RfmEnergOok" name="RfmUsb Energenie OOK" author="DerekGn" version="1.0.0" wikilink="http://www.domoticz.com/wiki/plugins/plugin.html" externallink="https://github.com/DerekGn/rfmusb-mihome-ook-plugin">
+<plugin key="RfmEnergOok" name="RfmUsb Energenie OOK" author="DerekGn" version="1.0.1" wikilink="http://www.domoticz.com/wiki/plugins/plugin.html" externallink="https://github.com/DerekGn/rfmusb-mihome-ook-plugin">
     <description>
         <h2>RfmUsb Energenie Ook Devices Plugin</h2>
         <br/>
@@ -154,7 +154,7 @@ class BasePlugin:
         strData = Data.decode("ascii")
         strData = strData.replace("\n", "")
 
-        Domoticz.Log(
+        Domoticz.Debug(
             "Command Executed: ["+self.LastCommand+"] Respose: ["+strData+"] ")
         
         if(self.IsInitalised == False and self.LastCommand.startswith("s-op")):
