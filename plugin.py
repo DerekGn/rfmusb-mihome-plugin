@@ -63,10 +63,16 @@
                 <option label="Thirteen" value="13"/>
             </options>
         </param>
-        <param field="Mode6" label="Debug" width="75px">
+        <param field="Mode6" label="Debug" width="150px">
             <options>
-                <option label="True" value="Debug"/>
-                <option label="False" value="Normal"  default="true" />
+                <option label="None" value="0"  default="true" />
+                <option label="Python Only" value="2"/>
+                <option label="Basic Debugging" value="62"/>
+                <option label="Basic+Messages" value="126"/>
+                <option label="Queue" value="128"/>
+                <option label="Connections Only" value="16"/>
+                <option label="Connections+Queue" value="144"/>
+                <option label="All" value="-1"/>
             </options>
         </param>
     </params>
@@ -111,6 +117,10 @@ class BasePlugin:
         return
 
     def onStart(self):
+        if Parameters["Mode6"] != "0":
+            Domoticz.Debugging(int(Parameters["Mode6"]))
+            DumpConfigToLog()
+        
         homeAddresses = Parameters["Mode1"].split(";")
 
         Domoticz.Log("["+str(len(homeAddresses)) +
