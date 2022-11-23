@@ -29,6 +29,7 @@
     <params>
         <param field="SerialPort" label="Serial Port" width="150px" required="true" default="/dev/serial1"/>
         <param field="Mode1" label="Home Addresses" width="300px" required="true" default="6C6C6"/>
+        <param field="Mode3" label="Tx Interval" width="100px" required="true" default="100"/>
         <param field="Mode4" label="Tx Power Level" width="100px" required="true" default="0">
             <options>
                 <option label="-2 dbm" value="-2"/>
@@ -204,7 +205,7 @@ class BasePlugin:
 
             switchMessage = str(''.join(format(x, '02x') for x in switchMessageBytes))
 
-            self.SendCommand(self.CMD_EXECUTE_TX + " " + switchMessage + " " + str(int(Parameters["Mode5"])))
+            self.SendCommand(self.CMD_EXECUTE_TX + " " + switchMessage + " " + str(int(Parameters["Mode5"])) + " " + str(int(Parameters["Mode3"])))
         else:
             if(self.IsInitalised == False):
                 Domoticz.Log("Not initalised")
