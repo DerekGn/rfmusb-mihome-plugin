@@ -3,9 +3,9 @@
 # Author: DerekGn
 #
 """
-<plugin key="RfmEnergOok" name="RfmUsb Energenie OOK" author="DerekGn" version="1.0.2" wikilink="http://www.domoticz.com/wiki/plugins/plugin.html" externallink="https://github.com/DerekGn/rfmusb-mihome-ook-plugin">
+<plugin key="RfmEnergOok" name="RfmUsb Energenie OOK" author="DerekGn" version="1.0.3" wikilink="http://www.domoticz.com/wiki/plugins/plugin.html" externallink="https://github.com/DerekGn/rfmusb-mihome-ook-plugin">
     <description>
-        <h2>RfmUsb Energenie Ook Devices Plugin</h2>
+        <h2>RfmUsb Energenie Ook Devices Plugin Version: 1.0.3</h2>
         <br/>
         The RfmUsb Energenie Ook Devices Plugin allows controlling various Energenie OOK devices.
         <h3>Features</h3>
@@ -82,27 +82,28 @@
 import Domoticz
 import encoder
 
-
 class BasePlugin:
 
     CMD_GET_FIRMWARE_VERSION = "g-fv"
+    CMD_SET_OUTPUT_POWER = "s-op"
     CMD_EXECUTE_TX = "e-tx "
     COMMAND_RESULT_OK = "OK"
 
     InitCommands = [
-        "s-mt 1",
-        "s-fd 0",
-        "s-f 433920000",
-        "s-rxbw 20",
-        "s-br 4800",
-        "s-ps 0",
-        "s-se 0",
-        "s-ss 0",
-        "s-sbe 0",
-        "s-pf 1",
-        "s-cc 0",
-        "s-caco 0",
-        "s-af 0"
+        "s-mt 1",          # set modulation type OOK
+        "s-fd 0",          # set frequency deviation 0
+        "s-f 433920000",   # set frequency 433.92 Mhz
+        "s-rxbw 20",       # set rx bw to 125 khz
+        "s-br 4800",       # set baud rate 4800
+        "s-ps 0",          # set preamble size 0
+        "s-se 0",          # set sync enable off
+        "s-ss 0",          # set sync size 0
+        "s-sbe 0",         # Set sync bit errors to 0
+        "s-pf 1",          # Set packet format to variable
+        "s-crc 0",         # Set crc off
+        "s-caco 0",        # Set crc auto clear off
+        "s-af 0",           # Set address filter off
+        "s-op"
     ]
 
     LastCommand = ""
@@ -140,7 +141,7 @@ class BasePlugin:
                 nValue=Devices[Device].nValue, sValue=Devices[Device].sValue)
 
         SerialConn = Domoticz.Connection(Name="Serial Connection", Transport="Serial",
-                                         Protocol="None", Address=Parameters["SerialPort"], Baud=115200)
+                                         Protocol="None", Address=Parameters["SerialPort"], Baud=230400)
         SerialConn.Connect()
 
     def onStop(self):
@@ -155,7 +156,7 @@ class BasePlugin:
             self.SendCommand(self.CMD_GET_FIRMWARE_VERSION)
         else:
             Domoticz.Log("Failed to connect ("+str(Status) +
-                         ") to: "+Parameters["SerialPort"])
+                         ") to: "+ Parameters["SerialPort"])
 
             Domoticz.Debug("Failed to connect ("+str(Status)+") to: " +
                            Parameters["SerialPort"]+" with error: "+Description)
@@ -165,26 +166,31 @@ class BasePlugin:
         strData = Data.decode("ascii")
         strData = strData.replace("\n", "")
 
-        Domoticz.Debug(
-            "Command Executed: ["+self.LastCommand+"] Respose: ["+strData+"] ")
-        
-        if(self.IsInitalised == False and self.LastCommand.startswith("s-op")):
-            self.IsInitalised = True
-
         if(self.IsInitalised == False):
+            Domoticz.Debug("Command Executed: ["+self.LastCommand+"] Response: ["+strData+"] ")
+            
+            if(self.LastCommand.startswith(self.CMD_GET_FIRMWARE_VERSION)):
+                Domoticz.Log("Rfm Firmware Version: " + strData)
+
             if(self.CommandIndex < len(self.InitCommands)):
-                self.SendCommand(self.InitCommands[self.CommandIndex])
+                if(self.InitCommands[self.CommandIndex].startswith(self.CMD_SET_OUTPUT_POWER)):
+                    self.sendCommand(self.CMD_SET_OUTPUT_POWER + " " + str(Parameters["Mode4"]))
+                else:
+                    self.sendCommand(self.InitCommands[self.CommandIndex])
+
                 self.CommandIndex = self.CommandIndex + 1
             else:
-                self.SendCommand("s-op " + str(Parameters["Mode4"]))
-
-        if(self.IsSwitching == True and self.LastCommand.startswith(self.CMD_EXECUTE_TX)):
-            Domoticz.Log("Setting Switch State: " + str(self.SwitchingCommand))
-            if(self.SwitchingCommand == "On"):
-                self.UpdateDevice(self.UnitSwitchingId, 1, "100")
-            else:
-                self.UpdateDevice(self.UnitSwitchingId, 0, "0")
-            self.IsSwitching = False
+                Domoticz.Debug("Initalised Rfm OOK")
+                self.LastCommand = ""
+                self.IsInitalised = True
+        else:
+            if(self.IsSwitching == True and self.LastCommand.startswith(self.CMD_EXECUTE_TX)):
+                Domoticz.Log("Setting Switch State: " + str(self.SwitchingCommand))
+                if(self.SwitchingCommand == "On"):
+                    self.UpdateDevice(self.UnitSwitchingId, 1, "100")
+                else:
+                    self.UpdateDevice(self.UnitSwitchingId, 0, "0")
+                self.IsSwitching = False
 
     def onCommand(self, Unit, Command, Level, Hue):
         Domoticz.Log("onCommand called for Unit " + str(Unit) +
