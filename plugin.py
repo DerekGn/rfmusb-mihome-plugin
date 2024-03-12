@@ -166,7 +166,7 @@ class BasePlugin:
         strData = Data.decode("ascii")
         strData = strData.replace("\n", "")
 
-        Domoticz.Debug("Command Executed: ["+self.LastCommand+"] Response: ["+strData+"] ")
+        Domoticz.Debug("Command Executed: ["+self.LastCommand+"] Response: ["+strData+"]")
 
         if(self.IsInitalised == False):
             if(self.LastCommand.startswith(self.CMD_GET_FIRMWARE_VERSION)):
