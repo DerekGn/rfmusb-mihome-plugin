@@ -3,9 +3,9 @@
 # Author: DerekGn
 #
 """
-<plugin key="RfmEnergOok" name="RfmUsb Energenie OOK" author="DerekGn" version="1.0.2" wikilink="http://www.domoticz.com/wiki/plugins/plugin.html" externallink="https://github.com/DerekGn/rfmusb-mihome-ook-plugin">
+<plugin key="RfmEnergOok" name="RfmUsb Energenie OOK" author="DerekGn" version="1.0.3" wikilink="http://www.domoticz.com/wiki/plugins/plugin.html" externallink="https://github.com/DerekGn/rfmusb-mihome-ook-plugin">
     <description>
-        <h2>RfmUsb Energenie Ook Devices Plugin</h2>
+        <h2>RfmUsb Energenie Ook Devices Plugin Version: 1.0.3</h2>
         <br/>
         The RfmUsb Energenie Ook Devices Plugin allows controlling various Energenie OOK devices.
         <h3>Features</h3>
@@ -82,27 +82,28 @@
 import Domoticz
 import encoder
 
-
 class BasePlugin:
 
     CMD_GET_FIRMWARE_VERSION = "g-fv"
+    CMD_SET_OUTPUT_POWER = "s-op"
     CMD_EXECUTE_TX = "e-tx "
     COMMAND_RESULT_OK = "OK"
 
     InitCommands = [
-        "s-mt 1",
-        "s-fd 0",
-        "s-f 433920000",
-        "s-rxbw 20",
-        "s-br 4800",
-        "s-ps 0",
-        "s-se 0",
-        "s-ss 0",
-        "s-sbe 0",
-        "s-pf 1",
-        "s-cc 0",
-        "s-caco 0",
-        "s-af 0"
+        "s-mt 1",          # set modulation type OOK
+        "s-fd 0",          # set frequency deviation 0
+        "s-f 433920000",   # set frequency 433.92 Mhz
+        "s-rxbw 20",       # set rx bw to 125 khz
+        "s-br 4800",       # set baud rate 4800
+        "s-ps 0",          # set preamble size 0
+        "s-se 0",          # set sync enable off
+        "s-ss 0",          # set sync size 0
+        "s-sbe 0",         # Set sync bit errors to 0
+        "s-pf 1",          # Set packet format to variable
+        "s-crc 0",         # Set crc off
+        "s-caco 0",        # Set crc auto clear off
+        "s-af 0",           # Set address filter off
+        "s-op"
     ]
 
     LastCommand = ""
@@ -132,7 +133,7 @@ class BasePlugin:
         # Can have up too 5 switches per home address, Switch ALL, 1, 2, 3, 4
         if(deviceCount < len(homeAddresses) * 5):
             Domoticz.Log("Creating Devices")
-            self.AddDevices(len(homeAddresses))
+            self.add_devices(len(homeAddresses))
             Domoticz.Log("Created "+str(len(Devices) - deviceCount)+" Devices")
 
         for Device in Devices:
@@ -140,7 +141,7 @@ class BasePlugin:
                 nValue=Devices[Device].nValue, sValue=Devices[Device].sValue)
 
         SerialConn = Domoticz.Connection(Name="Serial Connection", Transport="Serial",
-                                         Protocol="None", Address=Parameters["SerialPort"], Baud=115200)
+                                         Protocol="None", Address=Parameters["SerialPort"], Baud=230400)
         SerialConn.Connect()
 
     def onStop(self):
@@ -152,10 +153,10 @@ class BasePlugin:
                          Parameters["SerialPort"])
 
             self.SerialConn = Connection
-            self.SendCommand(self.CMD_GET_FIRMWARE_VERSION)
+            self.send_command(self.CMD_GET_FIRMWARE_VERSION)
         else:
             Domoticz.Log("Failed to connect ("+str(Status) +
-                         ") to: "+Parameters["SerialPort"])
+                         ") to: "+ Parameters["SerialPort"])
 
             Domoticz.Debug("Failed to connect ("+str(Status)+") to: " +
                            Parameters["SerialPort"]+" with error: "+Description)
@@ -165,26 +166,31 @@ class BasePlugin:
         strData = Data.decode("ascii")
         strData = strData.replace("\n", "")
 
-        Domoticz.Debug(
-            "Command Executed: ["+self.LastCommand+"] Respose: ["+strData+"] ")
-        
-        if(self.IsInitalised == False and self.LastCommand.startswith("s-op")):
-            self.IsInitalised = True
+        Domoticz.Debug("Command Executed: ["+self.LastCommand+"] Response: ["+strData+"]")
 
         if(self.IsInitalised == False):
+            if(self.LastCommand.startswith(self.CMD_GET_FIRMWARE_VERSION)):
+                Domoticz.Log("Rfm Firmware Version: " + strData)
+
             if(self.CommandIndex < len(self.InitCommands)):
-                self.SendCommand(self.InitCommands[self.CommandIndex])
+                if(self.InitCommands[self.CommandIndex].startswith(self.CMD_SET_OUTPUT_POWER)):
+                    self.send_command(self.CMD_SET_OUTPUT_POWER + " " + str(Parameters["Mode4"]))
+                else:
+                    self.send_command(self.InitCommands[self.CommandIndex])
+
                 self.CommandIndex = self.CommandIndex + 1
             else:
-                self.SendCommand("s-op " + str(Parameters["Mode4"]))
-
-        if(self.IsSwitching == True and self.LastCommand.startswith(self.CMD_EXECUTE_TX)):
-            Domoticz.Log("Setting Switch State: " + str(self.SwitchingCommand))
-            if(self.SwitchingCommand == "On"):
-                self.UpdateDevice(self.UnitSwitchingId, 1, "100")
-            else:
-                self.UpdateDevice(self.UnitSwitchingId, 0, "0")
-            self.IsSwitching = False
+                Domoticz.Debug("Initalised Rfm OOK")
+                self.LastCommand = ""
+                self.IsInitalised = True
+        else:
+            if(self.IsSwitching == True and self.LastCommand.startswith(self.CMD_EXECUTE_TX)):
+                Domoticz.Log("Setting Switch State: " + str(self.SwitchingCommand))
+                if(self.SwitchingCommand == "On"):
+                    self.update_device(self.UnitSwitchingId, 1, "100")
+                else:
+                    self.update_device(self.UnitSwitchingId, 0, "0")
+                self.IsSwitching = False
 
     def onCommand(self, Unit, Command, Level, Hue):
         Domoticz.Log("onCommand called for Unit " + str(Unit) +
@@ -193,7 +199,7 @@ class BasePlugin:
         if(self.IsInitalised == True and self.IsSwitching == False):
             Domoticz.Log("Switching ["+str(Unit)+"] Command ["+Command+"]")
 
-            homeAddress = self.DetermineDeviceHomeAddress(Unit)
+            homeAddress = self.determine_device_home_address(Unit)
             deviceAddress = Unit % 5
 
             self.IsSwitching = True
@@ -205,7 +211,7 @@ class BasePlugin:
 
             switchMessage = str(''.join(format(x, '02x') for x in switchMessageBytes))
 
-            self.SendCommand(self.CMD_EXECUTE_TX + " " + switchMessage + " " + str(int(Parameters["Mode5"])) + " " + str(int(Parameters["Mode3"])))
+            self.send_command(self.CMD_EXECUTE_TX + " " + switchMessage + " " + str(int(Parameters["Mode5"])) + " " + str(int(Parameters["Mode3"])))
         else:
             if(self.IsInitalised == False):
                 Domoticz.Log("Not initalised")
@@ -224,11 +230,11 @@ class BasePlugin:
         pass
 
     # Support functions
-    def SendCommand(self, Command):
+    def send_command(self, Command):
         self.LastCommand = Command
         self.SerialConn.Send(Command + "\n")
 
-    def AddDevices(self, Index):
+    def add_devices(self, Index):
         prefix = ord('A')
 
         for i in range(Index):
@@ -247,7 +253,7 @@ class BasePlugin:
 
             prefix = prefix + 1
 
-    def UpdateDevice(self, UnitId, nValue, sValue):
+    def update_device(self, UnitId, nValue, sValue):
         for x in Devices:
             #Domoticz.Log("Device: "+str(Devices[x].ID)+" Name: "+Devices[x].Name)
             if(Devices[x].ID == UnitId):
@@ -255,7 +261,7 @@ class BasePlugin:
                 Domoticz.Log("Updated Device State: " +
                              str(Devices[x].ID)+" Name: "+Devices[x].Name)
 
-    def DetermineDeviceHomeAddress(self, Unit):
+    def determine_device_home_address(self, Unit):
         homeAddress = ""
 
         homeAddresses = Parameters["Mode1"].split(";")
