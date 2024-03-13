@@ -3,9 +3,9 @@
 # Author: DerekGn
 #
 """
-<plugin key="RfmEnergOok" name="RfmUsb Energenie OOK" author="DerekGn" version="1.0.3" wikilink="http://www.domoticz.com/wiki/plugins/plugin.html" externallink="https://github.com/DerekGn/rfmusb-mihome-ook-plugin">
+<plugin key="RfmEnergOok" name="RfmUsb Energenie OOK" author="DerekGn" version="1.0.4" wikilink="http://www.domoticz.com/wiki/plugins/plugin.html" externallink="https://github.com/DerekGn/rfmusb-mihome-ook-plugin">
     <description>
-        <h2>RfmUsb Energenie Ook Devices Plugin Version: 1.0.3</h2>
+        <h2>RfmUsb Energenie Ook Devices Plugin Version: 1.0.4</h2>
         <br/>
         The RfmUsb Energenie Ook Devices Plugin allows controlling various Energenie OOK devices.
         <h3>Features</h3>
@@ -125,16 +125,16 @@ class BasePlugin:
         
         homeAddresses = Parameters["Mode1"].split(";")
 
-        Domoticz.Log("["+str(len(homeAddresses)) +
-                     "] HomeAddresses ["+str(len(Devices))+"] Devices")
+        Domoticz.Status("[{0}] HomeAddresses [{1}] Devices"
+                        .format(str(len(homeAddresses)), str(len(Devices))))
 
         deviceCount = len(Devices)
 
         # Can have up too 5 switches per home address, Switch ALL, 1, 2, 3, 4
         if(deviceCount < len(homeAddresses) * 5):
-            Domoticz.Log("Creating Devices")
+            Domoticz.Debug("Creating Devices")
             self.add_devices(len(homeAddresses))
-            Domoticz.Log("Created "+str(len(Devices) - deviceCount)+" Devices")
+            Domoticz.Debug("Created {} Devices", str(len(Devices) - deviceCount))
 
         for Device in Devices:
             Devices[Device].Update(
@@ -145,32 +145,31 @@ class BasePlugin:
         SerialConn.Connect()
 
     def onStop(self):
-        Domoticz.Log("onStop called")
+        Domoticz.Debug("onStop called")
 
     def onConnect(self, Connection, Status, Description):
         if (Status == 0):
-            Domoticz.Log("Connected successfully to: " +
-                         Parameters["SerialPort"])
+            Domoticz.Status("Connected successfully to: {}"
+                            .format(Parameters["SerialPort"]))
 
             self.SerialConn = Connection
             self.send_command(self.CMD_GET_FIRMWARE_VERSION)
         else:
-            Domoticz.Log("Failed to connect ("+str(Status) +
-                         ") to: "+ Parameters["SerialPort"])
-
-            Domoticz.Debug("Failed to connect ("+str(Status)+") to: " +
-                           Parameters["SerialPort"]+" with error: "+Description)
+            Domoticz.Error("Failed to connect to: {0} Status: {1} Description: {2}"
+                           .format(Parameters["SerialPort"], str(Status), Description))
         return True
 
     def onMessage(self, Connection, Data):
         strData = Data.decode("ascii")
         strData = strData.replace("\n", "")
 
-        Domoticz.Debug("Command Executed: ["+self.LastCommand+"] Response: ["+strData+"]")
+        Domoticz.Debug("Command Executed: [{0}] Response: [{1}]"
+                       .format(self.LastCommand,strData))
 
         if(self.IsInitalised == False):
             if(self.LastCommand.startswith(self.CMD_GET_FIRMWARE_VERSION)):
-                Domoticz.Log("Rfm Firmware Version: " + strData)
+                Domoticz.Status("Rfm Firmware Version: {}"
+                                .format(strData))
 
             if(self.CommandIndex < len(self.InitCommands)):
                 if(self.InitCommands[self.CommandIndex].startswith(self.CMD_SET_OUTPUT_POWER)):
@@ -180,12 +179,13 @@ class BasePlugin:
 
                 self.CommandIndex = self.CommandIndex + 1
             else:
-                Domoticz.Debug("Initalised Rfm OOK")
+                Domoticz.Status("Initalised")
                 self.LastCommand = ""
                 self.IsInitalised = True
         else:
             if(self.IsSwitching == True and self.LastCommand.startswith(self.CMD_EXECUTE_TX)):
-                Domoticz.Log("Setting Switch State: " + str(self.SwitchingCommand))
+                Domoticz.Status("Setting Switch State: {}"
+                                .format(str(self.SwitchingCommand)))
                 if(self.SwitchingCommand == "On"):
                     self.update_device(self.UnitSwitchingId, 1, "100")
                 else:
@@ -193,11 +193,12 @@ class BasePlugin:
                 self.IsSwitching = False
 
     def onCommand(self, Unit, Command, Level, Hue):
-        Domoticz.Log("onCommand called for Unit " + str(Unit) +
-                     ": Parameter '" + str(Command) + "', Level: " + str(Level))
+        Domoticz.Debug("onCommand called for Unit: {0} Command: {1} Parameter: {2} Level: {2} Hue: {3}"
+                       .format(Unit, Command, str(Level), str(Hue)))
 
         if(self.IsInitalised == True and self.IsSwitching == False):
-            Domoticz.Log("Switching ["+str(Unit)+"] Command ["+Command+"]")
+            Domoticz.Status("Switching [{0}] Command [{1}]"
+                            .format(Unit, Command))
 
             homeAddress = self.determine_device_home_address(Unit)
             deviceAddress = Unit % 5
@@ -211,19 +212,21 @@ class BasePlugin:
 
             switchMessage = str(''.join(format(x, '02x') for x in switchMessageBytes))
 
-            self.send_command(self.CMD_EXECUTE_TX + " " + switchMessage + " " + str(int(Parameters["Mode5"])) + " " + str(int(Parameters["Mode3"])))
+            self.send_command(
+                "{0} {1} {2} {3}"
+                .format(self.CMD_EXECUTE_TX, switchMessage, Parameters["Mode5"], Parameters["Mode3"]))
         else:
             if(self.IsInitalised == False):
-                Domoticz.Log("Not initalised")
+                Domoticz.Debug("Not initalised")
             else:
-                Domoticz.Log("Switching in progress")
+                Domoticz.Debug("Switching in progress")
 
     def onNotification(self, Name, Subject, Text, Status, Priority, Sound, ImageFile):
-        Domoticz.Log("Notification: " + Name + "," + Subject + "," + Text +
-                     "," + Status + "," + str(Priority) + "," + Sound + "," + ImageFile)
+        Domoticz.Debug("Notification: " + Name + "," + Subject + "," + Text + "," + Status + "," + str(Priority) + "," + Sound + "," + ImageFile)
 
     def onDisconnect(self, Connection):
-        Domoticz.Log("Connection '"+Connection.Name+"' disconnected.")
+        Domoticz.Debug("Connection {} disconnected."
+                       .format(Connection))
         return
 
     def onHeartbeat(self):
@@ -241,13 +244,13 @@ class BasePlugin:
             for y in range(5):
                 unitId = (i * 5) + y
                 if((unitId % 5) == 0):
-                    Domoticz.Log(
-                        "Creating Device [Home "+chr(prefix)+" Switch ALL]")
+                    Domoticz.Debug("Creating Device [Home {} Switch ALL]"
+                                   .format(chr(prefix)))
                     Domoticz.Device(Name="Home "+chr(prefix)+" Switch ALL", Unit=unitId+1,
                                     TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
                 else:
-                    Domoticz.Log(
-                        "Creating Device [Home "+chr(prefix)+" Switch "+str(y)+"]")
+                    Domoticz.Debug("Creating Device [Home {0} Switch {1}]"
+                                   .format(chr(prefix), str(y)))
                     Domoticz.Device(Name="Home "+chr(prefix)+" Switch "+str(y), Unit=unitId+1,
                                     TypeName="Switch", Type=244, Subtype=62, Switchtype=0).Create()
 
@@ -255,11 +258,10 @@ class BasePlugin:
 
     def update_device(self, UnitId, nValue, sValue):
         for x in Devices:
-            #Domoticz.Log("Device: "+str(Devices[x].ID)+" Name: "+Devices[x].Name)
             if(Devices[x].ID == UnitId):
                 Devices[x].Update(nValue=nValue, sValue=str(sValue))
-                Domoticz.Log("Updated Device State: " +
-                             str(Devices[x].ID)+" Name: "+Devices[x].Name)
+                Domoticz.Status("Updated Device: {0} Name: {1} State: {2}"
+                                .format(str(UnitId), Devices[x].Name, sValue))
 
     def determine_device_home_address(self, Unit):
         homeAddress = ""
@@ -269,12 +271,12 @@ class BasePlugin:
         homeAddressIndex = (Unit-1) // 5
 
         if(homeAddressIndex > len(homeAddresses)):
-            Domoticz.Log(
-                "No Home Address could be found for Unit:" + str(Unit))
+            Domoticz.Error("No Home Address could be found for Unit: {}"
+                           .format(str(Unit)))
         else:
             homeAddress = homeAddresses[homeAddressIndex]
-            Domoticz.Log("Home Address Found for Unit:" +
-                         str(Unit) + " HomeAddress: [" + str(homeAddress)+"]")
+            Domoticz.Status("Home Address Found for Unit: {0} HomeAddress: {1}"
+                            .format( str(Unit), str(homeAddress)))
 
         return homeAddress
 
@@ -282,49 +284,38 @@ class BasePlugin:
 global _plugin
 _plugin = BasePlugin()
 
-
 def onStart():
     global _plugin
     _plugin.onStart()
-
 
 def onStop():
     global _plugin
     _plugin.onStop()
 
-
 def onConnect(Connection, Status, Description):
     global _plugin
     _plugin.onConnect(Connection, Status, Description)
-
 
 def onMessage(Connection, Data):
     global _plugin
     _plugin.onMessage(Connection, Data)
 
-
 def onCommand(Unit, Command, Level, Hue):
     global _plugin
     _plugin.onCommand(Unit, Command, Level, Hue)
-
 
 def onNotification(Name, Subject, Text, Status, Priority, Sound, ImageFile):
     global _plugin
     _plugin.onNotification(Name, Subject, Text, Status,
                            Priority, Sound, ImageFile)
 
-
 def onDisconnect(Connection):
     global _plugin
     _plugin.onDisconnect(Connection)
 
-
 def onHeartbeat():
     global _plugin
     _plugin.onHeartbeat()
-
-    # Generic helper functions
-
 
 def DumpConfigToLog():
     for x in Parameters:
