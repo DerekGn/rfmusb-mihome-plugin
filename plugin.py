@@ -59,9 +59,19 @@
         </param>
         <param field="Mode5" label="Tx Count" width="100px" default="5">
             <options>
+                <option label="Two" value="2"/>
+                <option label="Three" value="3"/>
+                <option label="Four" value="4"/>
                 <option label="Five" value="5"/>
                 <option label="Eight" value="8"/>
                 <option label="Thirteen" value="13"/>
+                <option label="Fourteen" value="14"/>
+                <option label="Fifteen" value="15"/>
+                <option label="Sixteen" value="16"/>
+                <option label="Seventeen" value="17"/>
+                <option label="Eighteen" value="18"/>
+                <option label="Nineteen" value="19"/>
+                <option label="Twenty" value="20"/>
             </options>
         </param>
         <param field="Mode6" label="Debug" width="150px">
