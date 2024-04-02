@@ -3,9 +3,9 @@
 # Author: DerekGn
 #
 """
-<plugin key="RfmEnergOok" name="RfmUsb Energenie OOK" author="DerekGn" version="1.0.4" wikilink="http://www.domoticz.com/wiki/plugins/plugin.html" externallink="https://github.com/DerekGn/rfmusb-mihome-ook-plugin">
+<plugin key="RfmEnergOok" name="RfmUsb Energenie OOK" author="DerekGn" version="1.1.0" wikilink="http://www.domoticz.com/wiki/plugins/plugin.html" externallink="https://github.com/DerekGn/rfmusb-mihome-ook-plugin">
     <description>
-        <h2>RfmUsb Energenie Ook Devices Plugin Version: 1.0.4</h2>
+        <h2>RfmUsb Energenie Ook Devices Plugin Version: 1.1.0</h2>
         <br/>
         The RfmUsb Energenie Ook Devices Plugin allows controlling various Energenie OOK devices.
         <h3>Features</h3>
